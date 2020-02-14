@@ -13,3 +13,5 @@
   publisher={Nature Publishing Group}
 }
 ```
+
+Data functions previewed in DataHandler.ipynb
