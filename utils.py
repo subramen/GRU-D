@@ -3,7 +3,9 @@
 #   2nd January 2020
 # **********************************
 
-import os, pickle, torch
+import os, pickle, torch, time, random
+
+
 
 def pkl_dump(obj, f):
     with open(f, 'wb') as fo:
@@ -16,6 +18,20 @@ def pkl_load(f):
     
 def try_gpu():
     return torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+
+def get_filepath(*args):
+    fp = os.path.join(*args)
+    if os.path.exists(fp):
+        ts = ''.join(['_']+random.sample(str(int(time.time())), 5))
+        args = list(args)
+        args[-1] = args[-1]+ts
+        fp = os.path.join(*args)
+    else:
+        dire = os.path.dirname(fp)
+        if not os.path.exists(dire):
+            os.makedirs(dire)
+    return fp
+
     
     
 class Accumulator(object):
@@ -32,6 +48,10 @@ class Accumulator(object):
 
     def __getitem__(self, i):
         return self.data[i]
+
+
+
+
 
     
 
