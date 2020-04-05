@@ -74,10 +74,9 @@ def train_epoch(model, train_iter, tgt_col, aux_cols, criterion, optimizer, aux_
     def get_aux_loss(pred_aux, true_aux):
         aux_criterion = nn.BCEWithLogitsLoss() # MultiLabel
         combined_aux_loss = 0
-        for ix in range(len(true_aux)):
-            truth = true_aux[ix].to(device)
-            pred = pred_aux[ix]
-            if len(truth.size())==1: truth = torch.unsqueeze(truth, 1)
+        for truth, pred in zip(true_aux, pred_aux)
+            if len(truth.size())==1: 
+                truth = torch.unsqueeze(truth, 1)
             combined_aux_loss += aux_criterion(pred, truth)
         return combined_aux_loss
 
@@ -89,9 +88,10 @@ def train_epoch(model, train_iter, tgt_col, aux_cols, criterion, optimizer, aux_
 
     for batch, (X, y_dict) in enumerate(train_iter):
         X = X.to(device)  
-
+        y_dict = y_dict.to(device)
+        
         # GET LABELS
-        true_op = y_dict[tgt_col].to(device)   # OP target tensor  
+        true_op = y_dict[tgt_col]   # OP target tensor  
         true_aux = [y_dict[ac] for ac in aux_cols] # List of Aux target tensors
         
         # GET HIDDENS
