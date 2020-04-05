@@ -3,24 +3,18 @@
 # 	2nd January 2020
 # **********************************
 
-import datetime
-import time
+import datetime, time
+import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
+import os, sys, shutil, numpy as np, pandas as pd
+pd.options.mode.chained_assignment = None
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import data_utils as du
 import utils
 import random
-import matplotlib.pyplot as plt
-import os, sys
-import numpy as np
-from matplotlib.lines import Line2D
-from model import IBDModel
-import pandas as pd, numpy as np
-import shutil
-from sklearn.metrics import classification_report, roc_curve, auc, \
-brier_score_loss, precision_recall_curve, average_precision_score, matthews_corrcoef
-pd.options.mode.chained_assignment = None
+from model import StackedGRUDClassifier
+from sklearn.metrics import classification_report, roc_curve, auc, brier_score_loss, precision_recall_curve, average_precision_score, matthews_corrcoef
 
 class TrainPlot:
     def __init__(self, modelname):
@@ -174,7 +168,7 @@ def train_model(train_iter, valid_iter, X_Mean, tgt_col, aux_cols, epochs, model
     input_dim = X.size(-1)
     aux_dim = [ (y[aux_c].size(-1) if len(y[aux_c].size())>1 else 1) for aux_c in aux_cols] # if-else for targets with single dimennsion. their size(-1) will be batchsize
 
-    model = IBDModel(input_dim, nb_classes, X_Mean, aux_dim).to(device=device, dtype=torch.float)    
+    model = StackedGRUDClassifier(input_dim, nb_classes, X_Mean, aux_dim).to(device=device, dtype=torch.float)    
     criterion = nn.CrossEntropyLoss(weight=torch.Tensor(class_weights).to(device=device))
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=l2)
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 30, 0.85)

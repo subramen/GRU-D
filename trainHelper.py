@@ -1,7 +1,7 @@
 import torch 
 from torch.utils.data import DataLoader
-from data_utils import PatientDataset
-import gru
+from data_utils import SeqDataset
+import train
 import utils
 import argparse
 import time, os
@@ -24,7 +24,7 @@ aux_cols = args.AUX_tgts.split(',')
 
 
 # Load Datasets
-train_ds, valid_ds, test_ds = PatientDataset(args.datadir, 'train'), PatientDataset(args.datadir, 'valid'), PatientDataset(args.datadir, 'test') 
+train_ds, valid_ds, test_ds = SeqDataset(args.datadir, 'train'), SeqDataset(args.datadir, 'valid'), SeqDataset(args.datadir, 'test') 
 X_Mean = utils.pkl_load(os.path.join('data', args.datadir, 'x_mean.pkl'))
 
 # Balanced sampling
@@ -38,7 +38,7 @@ test_iter = DataLoader(test_ds, batch_size=len(test_ds), drop_last=True, num_wor
 
 
 t0 = time.time()
-model = gru.train_model(train_iter, test_iter, X_Mean, args.OP_tgt, aux_cols, int(args.epochs), args.model_name, 3, float(args.learning_rate), float(args.aux_alpha), float(args.tr_alpha), class_weights=None, l2=0)
+model = train.train_model(train_iter, test_iter, X_Mean, args.OP_tgt, aux_cols, int(args.epochs), args.model_name, 3, float(args.learning_rate), float(args.aux_alpha), float(args.tr_alpha), class_weights=None, l2=0)
 print(f'Time taken to train: {time.time()-t0}')
 print(f"Saving model to {os.path.join('models', args.model_name, 'model.mdl')}")
 torch.save(model.state_dict(), os.path.join('models', args.model_name, 'model.mdl'))
