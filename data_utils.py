@@ -47,7 +47,7 @@ class SequenceGenerator:
        
         def decompose_slice(indices):            
             input_df = grp.loc[indices[0]:indices[1]] # Slice out an input sequence
-            first_month = input_df.MONTH_TS.iloc[0]
+            first_month = input_df.MONTH.iloc[0]
             seq_name = f'{auto_id}_{first_month}'
             
             # input_df = pd.DataFrame(self.scaler.transform(input_df), columns=input_df.columns)
@@ -57,7 +57,7 @@ class SequenceGenerator:
             m = input_df[self.col_dict['missing']].values
             t = input_df[self.col_dict['delta']].values
             
-            return seq_name, np.array([x[:,2:], m[:,1:], t[:,1:], x_obs[:,2:]]) # remove auto id and month_ts
+            return seq_name, np.array([x, m, t, x_obs]) 
 
         input_start_ix = grp.index[0]
         input_final_ix = grp.index[-1]-self.min_rows_reqd+1
@@ -183,7 +183,7 @@ def clean_longitudinal_inputs(df):
         t0_df.columns = ['ID', 'tmp_minY', 'tmp_minMo']
         # add tmp columns to df for vectorized calculation of delta in months
         timestamped_df = df.merge(t0_df, how='left', on='ID')
-        timestamped_df['MONTH_TS'] = (timestamped_df['YEAR']-timestamped_df['tmp_minY'])*12 + timestamped_df['MONTH']-timestamped_df['tmp_minMo']
+        timestamped_df['MONTH'] = (timestamped_df['YEAR']-timestamped_df['tmp_minY'])*12 + timestamped_df['MONTH']-timestamped_df['tmp_minMo']
         df = timestamped_df[[x for x in timestamped_df.columns if x[:3]!='tmp']]
         print(f"Data shape: {df.shape}")
         return df
@@ -197,8 +197,8 @@ def clean_longitudinal_inputs(df):
 
         def pad(df):
             df = df.reset_index()
-            new_index = pd.MultiIndex.from_product([[df.ID.values[0]], list(range(0, df.MONTH_TS.max()+1))], names=['ID', 'MONTH_TS'])
-            df = df.set_index(['ID', 'MONTH_TS']).reindex(new_index).reset_index()
+            new_index = pd.MultiIndex.from_product([[df.ID.values[0]], list(range(0, df.MONTH.max()+1))], names=['ID', 'MONTH'])
+            df = df.set_index(['ID', 'MONTH']).reindex(new_index).reset_index()
             return df
 
         df = timestamped_df.groupby('ID', as_index=False).apply(pad)
