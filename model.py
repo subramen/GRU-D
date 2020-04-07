@@ -74,7 +74,7 @@ class StackedGRUDClassifier(nn.Module):
         """
         Example classifier with 2 GRUD layers, {aux_op_dims} auxiliary target classifiers, and 1 primary target classifier
         """
-        super(IBDModel, self).__init__()
+        super(StackedGRUDClassifier, self).__init__()
         self.device = utils.try_gpu()
         
         # Assign input and hidden dim
